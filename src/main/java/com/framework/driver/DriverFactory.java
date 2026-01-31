@@ -1,5 +1,6 @@
 package com.framework.driver;
 
+import com.framework.utils.ConfigManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -9,7 +10,7 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 public class DriverFactory {
 
     public static WebDriver createDriver() {
-        String browser = System.getProperty("browser", "chrome").toLowerCase();
+        String browser = System.getProperty("browser", ConfigManager.getProperty("browser", "chrome")).toLowerCase();
 
         switch (browser) {
             case "chrome":
