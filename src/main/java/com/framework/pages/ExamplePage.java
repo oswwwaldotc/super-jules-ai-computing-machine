@@ -1,5 +1,6 @@
 package com.framework.pages;
 
+import com.framework.utils.ConfigManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -20,7 +21,8 @@ public class ExamplePage {
     }
 
     public void navigateTo() {
-        driver.get("https://example.com");
+        String url = ConfigManager.getProperty("base.url", "https://example.com");
+        driver.get(url);
     }
 
     public String getPageTitle() {
