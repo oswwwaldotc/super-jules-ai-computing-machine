@@ -8,12 +8,12 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>18</maven.compiler.source>
+        <maven.compiler.target>18</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <selenium.version>4.28.0</selenium.version>
         <junit.version>5.11.0</junit.version>
-        <allure.version>2.25.0</allure.version>
+        <allure.version>2.32.0</allure.version>
         <log4j.version>2.23.1</log4j.version>
         <aspectj.version>1.9.20.1</aspectj.version>
     </properties>
@@ -115,6 +115,16 @@
                         <version>${aspectj.version}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+
+            <!-- Allure Maven Plugin -->
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>2.13.0</version>
+                <configuration>
+                    <reportVersion>2.32.0</reportVersion>
+                </configuration>
             </plugin>
         </plugins>
     </build>

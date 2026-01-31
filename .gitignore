@@ -1,20 +1,42 @@
+# Maven
 target/
+build/
+*.class
+*.jar
+*.war
+
+# Test Reports
 allure-results/
-.idea/
-*.iml
-*.log
-.DS_Store
+allure-report/
+.allure
 
 # IDEs
+.idea/
 .vscode/
 .classpath
 .project
 .settings/
 bin/
+*.iml
+*.iws
+*.ipr
 
 # OS
+.DS_Store
 Thumbs.db
+.AppleDouble
+.LSOverride
 
-# Build
-build/
-*.class
+# Logs
+*.log
+*.log.*
+logs/
+
+# Dependencies
+.m2/
+.gradle/
+
+# Environment
+.env
+.env.local
+.env.*.local
