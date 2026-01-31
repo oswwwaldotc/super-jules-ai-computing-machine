@@ -14,15 +14,21 @@ public class LoginPage {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    private By usernameInput = By.id("username");
-    private By passwordInput = By.id("password");
-    private By loginButton = By.xpath("//button[@type='submit']");
-    private By flashMessage = By.id("flash");
-    private By logoutButton = By.xpath("//a[contains(@href, '/logout')]");
+    private By usernameInput;
+    private By passwordInput;
+    private By loginButton;
+    private By flashMessage;
+    private By logoutButton;
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        this.usernameInput = By.id(ConfigManager.getProperty("locator.username.id"));
+        this.passwordInput = By.id(ConfigManager.getProperty("locator.password.id"));
+        this.loginButton = By.xpath(ConfigManager.getProperty("locator.loginButton.xpath"));
+        this.flashMessage = By.id(ConfigManager.getProperty("locator.flashMessage.id"));
+        this.logoutButton = By.xpath(ConfigManager.getProperty("locator.logoutButton.xpath"));
     }
 
     public void navigateTo() {
