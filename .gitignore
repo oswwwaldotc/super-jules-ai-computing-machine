@@ -4,3 +4,17 @@ allure-results/
 *.iml
 *.log
 .DS_Store
+
+# IDEs
+.vscode/
+.classpath
+.project
+.settings/
+bin/
+
+# OS
+Thumbs.db
+
+# Build
+build/
+*.class
