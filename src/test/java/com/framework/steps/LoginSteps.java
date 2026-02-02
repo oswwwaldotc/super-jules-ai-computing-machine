@@ -103,6 +103,12 @@ public class LoginSteps {
         loginPage.clickLogout();
     }
 
+    @Then("I should be redirected to the login page")
+    public void iShouldBeRedirectedToTheLoginPage() {
+        Assertions.assertTrue(loginPage.getCurrentUrl().contains("/login"),
+                "User was not redirected to the login page. Current URL: " + loginPage.getCurrentUrl());
+    }
+
     @Then("I should see the message {string}")
     public void iShouldSeeTheMessage(String expectedMessage) {
         Assertions.assertTrue(loginPage.getFlashMessage().contains(expectedMessage),
