@@ -19,6 +19,7 @@ public class LoginPage {
     private By loginButton;
     private By flashMessage;
     private By logoutButton;
+    private By rememberMeCheckbox;
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
@@ -29,11 +30,17 @@ public class LoginPage {
         this.loginButton = By.xpath(ConfigManager.getProperty("locator.loginButton.xpath"));
         this.flashMessage = By.id(ConfigManager.getProperty("locator.flashMessage.id"));
         this.logoutButton = By.xpath(ConfigManager.getProperty("locator.logoutButton.xpath"));
+        this.rememberMeCheckbox = By.id(ConfigManager.getProperty("locator.rememberMe.id", "remember-me"));
     }
 
     public void navigateTo() {
         String url = ConfigManager.getProperty("login.url");
         driver.get(url);
+    }
+
+    public void navigateTo(String path) {
+        String baseUrl = ConfigManager.getProperty("base.url", "http://localhost:7080");
+        driver.get(baseUrl + path);
     }
 
     public void enterUsername(String username) {
@@ -69,7 +76,57 @@ public class LoginPage {
         }
     }
 
+    public boolean isLoginButtonDisplayed() {
+        try {
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(loginButton)).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public String getCurrentUrl() {
         return driver.getCurrentUrl();
+    }
+
+    public void waitForPageLoad() {
+        wait.until(webDriver -> ((String) ((JavascriptExecutor) webDriver)
+                .executeScript("return document.readyState")).equals("complete"));
+    }
+
+    public void IwaitForElementVisible(By locator) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    public void IwaitForElementClickable(By locator) {
+        wait.until(ExpectedConditions.elementToBeClickable(locator));
+    }
+
+    public void clickLogout() {
+        WebElement button = wait.until(ExpectedConditions.elementToBeClickable(logoutButton));
+        try {
+            button.click();
+        } catch (Exception e) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", button);
+        }
+    }
+
+    public void selectRememberMe() {
+        WebElement checkbox = wait.until(ExpectedConditions.elementToBeClickable(rememberMeCheckbox));
+        if (!checkbox.isSelected()) {
+            try {
+                checkbox.click();
+            } catch (Exception e) {
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", checkbox);
+            }
+        }
+    }
+
+    public void logout() {
+        WebElement button = wait.until(ExpectedConditions.elementToBeClickable(logoutButton));
+        try {
+            button.click();
+        } catch (Exception e) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", button);
+        }
     }
 }
