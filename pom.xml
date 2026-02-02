@@ -16,6 +16,7 @@
         <allure.version>2.32.0</allure.version>
         <log4j.version>2.23.1</log4j.version>
         <aspectj.version>1.9.20.1</aspectj.version>
+        <cucumber.version>7.20.1</cucumber.version>
     </properties>
 
     <dependencies>
@@ -58,13 +59,13 @@
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
-            <version>7.15.0</version>
+            <version>${cucumber.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-junit-platform-engine</artifactId>
-            <version>7.15.0</version>
+            <version>${cucumber.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -72,7 +73,13 @@
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
-            <version>1.10.0</version>
+            <version>1.11.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>1.11.0</version>
             <scope>test</scope>
         </dependency>
 
