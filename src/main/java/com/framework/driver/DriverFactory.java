@@ -15,16 +15,22 @@ public class DriverFactory {
         switch (browser) {
             case "chrome":
                 ChromeOptions chromeOptions = new ChromeOptions();
-                chromeOptions.addArguments("--headless=new");
-                chromeOptions.addArguments("--no-sandbox");
-                chromeOptions.addArguments("--disable-dev-shm-usage");
-                chromeOptions.addArguments("--remote-allow-origins=*");
-                chromeOptions.addArguments("--window-size=1920,1080");
+                String chromeArgs = ConfigManager.getProperty("chrome.arguments", "");
+                if (!chromeArgs.isEmpty()) {
+                    for (String arg : chromeArgs.split(",")) {
+                        chromeOptions.addArguments(arg.trim());
+                    }
+                }
                 return new ChromeDriver(chromeOptions);
 
             case "firefox":
                 FirefoxOptions firefoxOptions = new FirefoxOptions();
-                firefoxOptions.addArguments("--headless");
+                String firefoxArgs = ConfigManager.getProperty("firefox.arguments", "");
+                if (!firefoxArgs.isEmpty()) {
+                    for (String arg : firefoxArgs.split(",")) {
+                        firefoxOptions.addArguments(arg.trim());
+                    }
+                }
                 return new FirefoxDriver(firefoxOptions);
 
             default:
