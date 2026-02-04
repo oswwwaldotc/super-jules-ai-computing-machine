@@ -1,57 +1,49 @@
 package com.framework.pages;
 
 import com.framework.utils.ConfigManager;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.WaitForSelectorState;
 
 public class ExamplePage {
-    private WebDriver driver;
-    private WebDriverWait wait;
+    private Page page;
     private long pageLoadStartTime;
 
-    private By header = By.cssSelector("h1");
-    private By moreInfoLink = By.cssSelector("a");
+    private String header = "h1";
+    private String moreInfoLink = "a";
 
-    public ExamplePage(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    public ExamplePage(Page page) {
+        this.page = page;
     }
 
     public void navigateTo() {
         String url = ConfigManager.getProperty("base.url", "https://example.com");
         pageLoadStartTime = System.currentTimeMillis();
-        driver.get(url);
+        page.navigate(url);
         waitForPageLoad();
     }
 
     public String getPageTitle() {
-        return driver.getTitle();
+        return page.title();
     }
 
     public String getHeaderText() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(header)).getText();
+        return page.textContent(header);
     }
 
     public String getMoreInformationLinkText() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(moreInfoLink)).getText();
+        return page.textContent(moreInfoLink);
     }
 
     public void clickMoreInformationLink() {
-        wait.until(ExpectedConditions.elementToBeClickable(moreInfoLink)).click();
+        page.click(moreInfoLink);
     }
 
     public String getCurrentUrl() {
-        return driver.getCurrentUrl();
+        return page.url();
     }
 
     public String getPageContent() {
-        return driver.findElement(By.tagName("body")).getText();
+        return page.locator("body").innerText();
     }
 
     public boolean isElementPresent(String locatorKey) {
@@ -60,7 +52,8 @@ public class ExamplePage {
             if (locatorValue == null) {
                 locatorValue = locatorKey;
             }
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(locatorValue)));
+            // Assuming locatorValue is a valid selector (XPath or CSS)
+            page.waitForSelector(locatorValue, new Page.WaitForSelectorOptions().setState(WaitForSelectorState.ATTACHED).setTimeout(5000));
             return true;
         } catch (Exception e) {
             return false;
@@ -73,11 +66,10 @@ public class ExamplePage {
     }
 
     public void waitForPageLoad() {
-        wait.until(webDriver -> ((String) ((JavascriptExecutor) webDriver)
-                .executeScript("return document.readyState")).equals("complete"));
+        page.waitForLoadState();
     }
 
-    public void IwaitForElementVisible(By locator) {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    public void IwaitForElementVisible(String locator) {
+        page.waitForSelector(locator, new Page.WaitForSelectorOptions().setState(WaitForSelectorState.VISIBLE));
     }
 }

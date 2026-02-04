@@ -1,73 +1,56 @@
 package com.framework.pages;
 
 import com.framework.utils.ConfigManager;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
+import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.WaitForSelectorState;
 
 public class FormValidationPage {
-    private WebDriver driver;
-    private WebDriverWait wait;
+    private Page page;
 
-    private By contactNameInput = By.name("ContactName");
-    private By contactNumberInput = By.name("contactnumber");
-    private By pickupDateInput = By.name("pickupdate");
-    private By paymentMethodSelect = By.name("payment");
-    private By registerButton = By.xpath("//button[@type='submit']");
+    private String contactNameInput = "[name='ContactName']";
+    private String contactNumberInput = "[name='contactnumber']";
+    private String pickupDateInput = "[name='pickupdate']";
+    private String paymentMethodSelect = "[name='payment']";
+    private String registerButton = "//button[@type='submit']";
 
-    public FormValidationPage(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    public FormValidationPage(Page page) {
+        this.page = page;
     }
 
     public void navigateTo() {
         String url = ConfigManager.getProperty("formvalidation.url", "https://practice.expandtesting.com/form-validation");
-        driver.get(url);
+        page.navigate(url);
     }
 
     public void enterContactName(String name) {
-        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(contactNameInput));
-        element.clear();
-        element.sendKeys(name);
+        page.fill(contactNameInput, name);
     }
 
     public void enterContactNumber(String number) {
-        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(contactNumberInput));
-        element.clear();
-        element.sendKeys(number);
+        page.fill(contactNumberInput, number);
     }
 
     public void enterPickupDate(String date) {
-        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(pickupDateInput));
-        element.clear();
-        element.sendKeys(date);
+        page.fill(pickupDateInput, date);
     }
 
     public void selectPaymentMethod(String method) {
-        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(paymentMethodSelect));
-        Select select = new Select(element);
-        select.selectByValue(method);
+        page.selectOption(paymentMethodSelect, method);
     }
 
     public void clickRegister() {
-        WebElement button = wait.until(ExpectedConditions.elementToBeClickable(registerButton));
-        ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", button);
         try {
-            button.click();
-        } catch (org.openqa.selenium.ElementClickInterceptedException e) {
-            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", button);
+            page.click(registerButton);
+        } catch (Exception e) {
+            page.locator(registerButton).click(new Locator.ClickOptions().setForce(true));
         }
     }
 
     public boolean isSuccess() {
-        // Assuming redirection to /form-confirmation
         try {
-             return wait.until(ExpectedConditions.urlContains("form-confirmation"));
+             page.waitForURL(url -> url.contains("form-confirmation"), new Page.WaitForURLOptions().setTimeout(5000));
+             return true;
         } catch (Exception e) {
              return false;
         }
@@ -75,11 +58,9 @@ public class FormValidationPage {
 
     public boolean isValidationErrorDisplayed(String fieldName) {
         try {
-            // Wait for at least one invalid feedback to be visible
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".invalid-feedback")));
+            page.waitForSelector(".invalid-feedback", new Page.WaitForSelectorOptions().setState(WaitForSelectorState.VISIBLE).setTimeout(2000));
             return true;
         } catch (Exception e) {
-            // If timeout, return false
             return false;
         }
     }

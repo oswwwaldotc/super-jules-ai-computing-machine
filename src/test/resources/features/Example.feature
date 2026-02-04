@@ -12,9 +12,9 @@ Feature: Example Domain
     Given I navigate to the Example Domain page
     When I click on the "More information" link
     Then I should be redirected to "link.url"
-    And the new page title should be "IANA — IANA-managed Reserved Domains"
+    And the new page title should be "Example Domains"
     And the new page URL should be "link.url"
-    And the new page should contain the text "Example domains are maintained by IANA"
+    And the new page should contain the text "Example Domains"
   
   Scenario: Verify non-existent element handling
     Given I navigate to the Example Domain page

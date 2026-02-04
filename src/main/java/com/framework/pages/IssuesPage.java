@@ -1,47 +1,42 @@
 package com.framework.pages;
 
 import com.framework.utils.ConfigManager;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
+import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.SelectOption;
 
 public class IssuesPage {
-    private WebDriver driver;
-    private WebDriverWait wait;
+    private Page page;
 
-    private By issueContainer = By.className("issue-item");
-    private By issueIdSelector = By.className("issue-id");
-    private By issueStatusSelector = By.className("issue-status");
-    private By issuePrioritySelector = By.className("issue-priority");
-    private By commentInputField = By.id("comment-input");
-    private By addCommentButton = By.id("add-comment-btn");
-    private By commentSection = By.id("comments-section");
-    private By assigneeField = By.id("assignee-select");
-    private By assignButton = By.id("assign-btn");
-    private By assigneeDisplay = By.className("assignee-name");
+    private String issueContainer = ".issue-item";
+    private String issueIdSelector = ".issue-id";
+    private String issueStatusSelector = ".issue-status";
+    private String issuePrioritySelector = ".issue-priority";
+    private String commentInputField = "#comment-input";
+    private String addCommentButton = "#add-comment-btn";
+    private String commentSection = "#comments-section";
+    private String assigneeField = "#assignee-select";
+    private String assignButton = "#assign-btn";
+    private String assigneeDisplay = ".assignee-name";
 
-    public IssuesPage(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    public IssuesPage(Page page) {
+        this.page = page;
     }
 
     public void navigateTo() {
         String url = ConfigManager.getProperty("issues.url", "http://localhost:7080/issues");
-        driver.get(url);
+        page.navigate(url);
         waitForPageLoad();
     }
 
     public boolean isIssuePresent(String issueID) {
         try {
-            java.util.List<WebElement> issues = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(issueContainer));
-            for (WebElement issue : issues) {
-                String id = issue.findElement(issueIdSelector).getText();
-                if (id.contains(issueID)) {
+            page.waitForSelector(issueContainer, new Page.WaitForSelectorOptions().setTimeout(5000));
+            Locator issues = page.locator(issueContainer);
+            int count = issues.count();
+            for (int i = 0; i < count; i++) {
+                String text = issues.nth(i).locator(issueIdSelector).textContent();
+                if (text.contains(issueID)) {
                     return true;
                 }
             }
@@ -53,7 +48,7 @@ public class IssuesPage {
 
     public String getIssueStatus() {
         try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(issueStatusSelector)).getText();
+            return page.textContent(issueStatusSelector);
         } catch (Exception e) {
             return "";
         }
@@ -61,7 +56,7 @@ public class IssuesPage {
 
     public String getIssuePriority() {
         try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(issuePrioritySelector)).getText();
+            return page.textContent(issuePrioritySelector);
         } catch (Exception e) {
             return "";
         }
@@ -69,10 +64,11 @@ public class IssuesPage {
 
     public void clickOnIssue(String issueID) {
         try {
-            java.util.List<WebElement> issues = driver.findElements(issueContainer);
-            for (WebElement issue : issues) {
-                String id = issue.findElement(issueIdSelector).getText();
-                if (id.contains(issueID)) {
+            Locator issues = page.locator(issueContainer);
+            int count = issues.count();
+            for (int i = 0; i < count; i++) {
+                Locator issue = issues.nth(i);
+                if (issue.locator(issueIdSelector).textContent().contains(issueID)) {
                     issue.click();
                     waitForPageLoad();
                     break;
@@ -85,11 +81,8 @@ public class IssuesPage {
 
     public void addComment(String commentText) {
         try {
-            WebElement commentInput = wait.until(ExpectedConditions.visibilityOfElementLocated(commentInputField));
-            commentInput.clear();
-            commentInput.sendKeys(commentText);
-            WebElement addBtn = wait.until(ExpectedConditions.elementToBeClickable(addCommentButton));
-            addBtn.click();
+            page.fill(commentInputField, commentText);
+            page.click(addCommentButton);
             waitForPageLoad();
         } catch (Exception e) {
             throw new RuntimeException("Could not add comment: " + e.getMessage());
@@ -98,7 +91,7 @@ public class IssuesPage {
 
     public boolean isCommentAdded() {
         try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(commentSection)).isDisplayed();
+            return page.isVisible(commentSection);
         } catch (Exception e) {
             return false;
         }
@@ -106,9 +99,8 @@ public class IssuesPage {
 
     public boolean isCommentVisible() {
         try {
-            WebElement section = wait.until(ExpectedConditions.visibilityOfElementLocated(commentSection));
-            java.util.List<WebElement> comments = section.findElements(By.className("comment"));
-            return !comments.isEmpty();
+            Locator comments = page.locator(commentSection).locator(".comment");
+            return comments.count() > 0;
         } catch (Exception e) {
             return false;
         }
@@ -116,15 +108,10 @@ public class IssuesPage {
 
     public void assignIssueTo(String username) {
         try {
-            WebElement assigneeSelect = wait.until(ExpectedConditions.visibilityOfElementLocated(assigneeField));
-            assigneeSelect.click();
+            // Attempt to select by label first
+            page.selectOption(assigneeField, new SelectOption().setLabel(username));
             
-            // Find and click the user option
-            WebElement userOption = driver.findElement(By.xpath("//option[contains(text(), '" + username + "')]"));
-            userOption.click();
-            
-            WebElement assignBtn = wait.until(ExpectedConditions.elementToBeClickable(assignButton));
-            assignBtn.click();
+            page.click(assignButton);
             waitForPageLoad();
         } catch (Exception e) {
             throw new RuntimeException("Could not assign issue to user: " + e.getMessage());
@@ -133,7 +120,7 @@ public class IssuesPage {
 
     public String getAssignedUser() {
         try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(assigneeDisplay)).getText();
+            return page.textContent(assigneeDisplay);
         } catch (Exception e) {
             return "";
         }
@@ -141,9 +128,10 @@ public class IssuesPage {
 
     public boolean isAssigneeDisplayed(String assignee) {
         try {
-            java.util.List<WebElement> assignees = driver.findElements(assigneeDisplay);
-            for (WebElement element : assignees) {
-                if (element.getText().contains(assignee)) {
+            Locator assignees = page.locator(assigneeDisplay);
+            int count = assignees.count();
+            for (int i = 0; i < count; i++) {
+                if (assignees.nth(i).textContent().contains(assignee)) {
                     return true;
                 }
             }
@@ -154,7 +142,6 @@ public class IssuesPage {
     }
 
     private void waitForPageLoad() {
-        wait.until(webDriver -> ((String) ((JavascriptExecutor) webDriver)
-                .executeScript("return document.readyState")).equals("complete"));
+        page.waitForLoadState();
     }
 }
