@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.openqa.selenium.WebDriver;
 
 public class BaseTest {
     protected static final Logger logger = LogManager.getLogger(BaseTest.class);
@@ -14,8 +13,7 @@ public class BaseTest {
     @BeforeEach
     public void setUp() {
         logger.info("Initializing Driver...");
-        WebDriver driver = DriverFactory.createDriver();
-        DriverManager.setDriver(driver);
+        DriverFactory.createPage();
         logger.info("Driver Initialized.");
     }
 

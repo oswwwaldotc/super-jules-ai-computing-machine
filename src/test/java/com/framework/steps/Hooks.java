@@ -6,7 +6,6 @@ import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.WebDriver;
 
 public class Hooks {
 
@@ -15,8 +14,7 @@ public class Hooks {
     @Before
     public void setUp() {
         logger.info("Initializing Driver...");
-        WebDriver driver = DriverFactory.createDriver();
-        DriverManager.setDriver(driver);
+        DriverFactory.createPage();
         logger.info("Driver Initialized.");
     }
 

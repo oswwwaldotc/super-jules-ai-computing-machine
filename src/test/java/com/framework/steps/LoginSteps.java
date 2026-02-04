@@ -128,11 +128,11 @@ public class LoginSteps {
     @When("I close and reopen the browser")
     public void iCloseAndReopenTheBrowser() {
         // Close the current browser instance
-        DriverManager.closeBrowser();
+        DriverManager.quitDriver();
         
         // Reopen a new instance (driver will be reinitialized)
-        // Note: This will need implementation in DriverManager to handle persistence
-        loginPage = new LoginPage(DriverManager.getDriver());
+        com.framework.driver.DriverFactory.createPage();
+        loginPage = new LoginPage(DriverManager.getPage());
     }
 
     @When("I navigate to the secure page")

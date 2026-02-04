@@ -1,40 +1,69 @@
 package com.framework.driver;
 
 import com.framework.utils.ConfigManager;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxOptions;
+import com.microsoft.playwright.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DriverFactory {
 
-    public static WebDriver createDriver() {
-        String browser = System.getProperty("browser", ConfigManager.getProperty("browser", "chrome")).toLowerCase();
+    public static Page createPage() {
+        Playwright playwright = Playwright.create();
+        DriverManager.setPlaywright(playwright);
 
-        switch (browser) {
-            case "chrome":
-                ChromeOptions chromeOptions = new ChromeOptions();
-                String chromeArgs = ConfigManager.getProperty("chrome.arguments", "");
-                if (!chromeArgs.isEmpty()) {
-                    for (String arg : chromeArgs.split(",")) {
-                        chromeOptions.addArguments(arg.trim());
-                    }
-                }
-                return new ChromeDriver(chromeOptions);
+        String browserName = System.getProperty("browser", ConfigManager.getProperty("browser", "chrome")).toLowerCase();
+        boolean headless = Boolean.parseBoolean(System.getProperty("headless", ConfigManager.getProperty("headless", "true")));
 
-            case "firefox":
-                FirefoxOptions firefoxOptions = new FirefoxOptions();
-                String firefoxArgs = ConfigManager.getProperty("firefox.arguments", "");
-                if (!firefoxArgs.isEmpty()) {
-                    for (String arg : firefoxArgs.split(",")) {
-                        firefoxOptions.addArguments(arg.trim());
-                    }
-                }
-                return new FirefoxDriver(firefoxOptions);
+        BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions().setHeadless(headless);
 
-            default:
-                throw new IllegalArgumentException("Browser not supported: " + browser);
+        // Basic argument handling
+        String args = "";
+        if (browserName.contains("chrome")) {
+             args = ConfigManager.getProperty("chrome.arguments", "");
+        } else if (browserName.contains("firefox")) {
+             args = ConfigManager.getProperty("firefox.arguments", "");
         }
+
+        if (!args.isEmpty()) {
+            List<String> argList = new ArrayList<>();
+            for (String arg : args.split(",")) {
+                String trimmed = arg.trim();
+                if (trimmed.isEmpty()) continue;
+                if (trimmed.startsWith("--headless")) continue;
+                if (trimmed.startsWith("--window-size")) continue;
+                if (!trimmed.startsWith("-")) continue; // avoid malformed args treated as URLs
+                argList.add(trimmed);
+            }
+            launchOptions.setArgs(argList);
+        }
+
+        Browser browser;
+        switch (browserName) {
+            case "chrome":
+            case "chromium":
+                browser = playwright.chromium().launch(launchOptions);
+                break;
+            case "firefox":
+                browser = playwright.firefox().launch(launchOptions);
+                break;
+            case "webkit":
+            case "safari":
+                browser = playwright.webkit().launch(launchOptions);
+                break;
+            default:
+                throw new IllegalArgumentException("Browser not supported: " + browserName);
+        }
+        DriverManager.setBrowser(browser);
+
+        // Set viewport size if needed (defaulting to 1920x1080 for consistency with previous args)
+        Browser.NewContextOptions contextOptions = new Browser.NewContextOptions().setViewportSize(1920, 1080);
+
+        BrowserContext context = browser.newContext(contextOptions);
+        DriverManager.setContext(context);
+
+        Page page = context.newPage();
+        DriverManager.setPage(page);
+
+        return page;
     }
 }

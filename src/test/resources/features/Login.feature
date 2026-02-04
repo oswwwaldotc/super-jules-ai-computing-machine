@@ -38,6 +38,8 @@ Feature: Login Functionality
     And I should see the message "You logged out of the secure area!"
     And the Login button should be visible
 
+  @ignore
+  # Feature "Remember Me" is not present on the target website (practice.expandtesting.com)
   Scenario: Remember Me Functionality
     Given I launch the browser and navigate to the login page
     When I enter username "login.username" and password "login.password"
